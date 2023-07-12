@@ -49,7 +49,7 @@ fun MarsPhotosApp() {
                 .fillMaxSize()
                 .padding(it)
         ) {
-            val marsViewModel: MarsViewModel = viewModel()
+            val marsViewModel: MarsViewModel = viewModel(factory = MarsViewModel.Factory)
             AnimatedContent(targetState = marsViewModel.marsUiState) {
                 HomeScreen(
                     marsUiState = marsViewModel.marsUiState
