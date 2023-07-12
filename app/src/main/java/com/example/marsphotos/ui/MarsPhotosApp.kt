@@ -16,6 +16,8 @@
 
 package com.example.marsphotos.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -34,6 +36,7 @@ import com.example.marsphotos.R
 import com.example.marsphotos.ui.screens.HomeScreen
 import com.example.marsphotos.ui.screens.MarsViewModel
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MarsPhotosApp() {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -47,8 +50,11 @@ fun MarsPhotosApp() {
                 .padding(it)
         ) {
             val marsViewModel: MarsViewModel = viewModel()
-            HomeScreen(
-                marsUiState = marsViewModel.marsUiState)
+            AnimatedContent(targetState = marsViewModel.marsUiState) {
+                HomeScreen(
+                    marsUiState = marsViewModel.marsUiState
+                )
+            }
         }
     }
 }

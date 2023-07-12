@@ -15,14 +15,28 @@
  */
 package com.example.marsphotos.ui.screens
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.marsphotos.data.MarsPhotosRepository
+import com.example.marsphotos.data.NetworkMarsPhotosRepository
+import com.example.marsphotos.network.MarsPhoto
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
+
+sealed interface MarsUiState {
+    data class Success(val photos: String) : MarsUiState
+    object Error : MarsUiState
+    object Loading : MarsUiState
+}
 
 class MarsViewModel : ViewModel() {
     /** The mutable State that stores the status of the most recent request */
-    var marsUiState: String by mutableStateOf("")
+    var marsUiState: MarsUiState by mutableStateOf(MarsUiState.Loading)
         private set
 
     /**
@@ -36,7 +50,19 @@ class MarsViewModel : ViewModel() {
      * Gets Mars photos information from the Mars API Retrofit service and updates the
      * [MarsPhoto] [List] [MutableList].
      */
-    fun getMarsPhotos() {
-        marsUiState = "Set the Mars API status response here!"
+    private fun getMarsPhotos() {
+        viewModelScope.launch {
+            marsUiState = try {
+                val marsPhotosRepository: MarsPhotosRepository = NetworkMarsPhotosRepository()
+                val listResult: List<MarsPhoto> = marsPhotosRepository.getMarsPhotos()
+                MarsUiState.Success("Success: ${listResult.size} MarsPhotos received")
+            } catch (e: IOException) {
+                Log.e("MarsPhotos", "Caught exception: ${e.message}")
+                MarsUiState.Error
+            } catch (e: HttpException) {
+                // To catch non-2xx responses
+                MarsUiState.Error
+            }
+        }
     }
 }
